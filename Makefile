@@ -144,6 +144,7 @@ UPROGS=\
         $U/_sys_sum\
         $U/_fork-first\
         $U/_fork-second\
+        $U/_hw1-task2\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
