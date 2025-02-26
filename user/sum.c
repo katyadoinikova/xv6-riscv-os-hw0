@@ -6,14 +6,14 @@ main(int argc, char *argv[])
 {
   char c; int ret_value;
   int MAX_LEN = 50;
-  char buf[MAX_LEN];
+  char buffer[MAX_LEN];
   int i;
-  for(i = 0; i+1 < MAX_LEN; ){
+  for(i = 0; i < MAX_LEN; i++ ){
     ret_value = read(0, &c, 1);
     if(ret_value <= 0)
       break;
-    buf[i++] = c;
-    if (c == '\n' || c == '\r')
+    buffer[i] = c;
+    if (c == '\n')
       break;
   }
   if (ret_value < 0){
@@ -24,68 +24,51 @@ main(int argc, char *argv[])
     fprintf(2, "%s\n", "Nothing entered");
     exit(1);
   }
-  if (i + 1 == MAX_LEN){
+  if (i == MAX_LEN){
     fprintf(2, "Error: %s\n", "Buffer is overflowed");
     exit(1);
   }
-  buf[i-1] = '\0';
-  printf("|%s|\n", buf);
+  buffer[i] = '\0';
+  printf("|%s|\n", buffer);
   
-  char first[MAX_LEN]; char second[MAX_LEN];
-  i = 0;
-  while (buf[i] != ' ' && buf[i] != '\0'){
-    first[i] = buf[i];
-    i++;
-  }
-  if (buf[i] == '\0'){
-    fprintf(2, "Error: %s\n", "Second number is empty");
-    exit(1);  
-  }
-  if (strlen(first) == 0){
+  char* buf = buffer;
+  int a = atoi(buf);
+  if (*buf == ' '){
     fprintf(2, "Error: %s\n", "First number is empty");
     exit(1);
   }
-  first[i] = '\0';
-  int k = 0;
-  while (first[k] != ' ' && first[k] != '\0'){
-      if ('0' > first[k] || first[k] > '9')
+  while (*buf != ' ' && *buf != '\0'){
+     if ('0' > *buf || *buf > '9')
          break;
-     k++;
+     buf++;
   }
-  if (k != i){
-     fprintf(2, "Error: %s\n", "There are letters in first number");
-     exit(1);
-  }
-
-  int a = atoi(first);
-  
-  int j = 0; i ++;
-  while (buf[i] != '\0'){
-    second[j] = buf[i];
-    i++; j++;
-  }
-
-  if (strlen(second) == 0){
+  if (*buf == '\0'){
     fprintf(2, "Error: %s\n", "Second number is empty");
     exit(1);
   }
+  if (*buf != ' '){
+     fprintf(2, "Error: %s\n", "There are letters in first number");
+     exit(1);
+  }
+  *buf = '\0';
+  buf++;
 
-  if (second[0] == ' ') {
+  if (*buf == ' ') {
      fprintf(2, "Error: %s\n", "More than 1 space");
      exit(1);
   }
-  second[j] = '\0';
-  k = 0;
-  while (second[k] != ' ' && second[k] != '\0'){
-      if ('0' > second[k] || second[k] > '9')
-         break;
-     k++;
+  if (*buf == '\0'){
+    fprintf(2, "Error: %s\n", "Second number is empty");
+    exit(1);
   }
-  if (k != j){
-     fprintf(2, "Error: %s\n", "There are letters in second number");
-     exit(1);
+  int b = atoi(buf);
+  while (*buf != '\0'){
+     if ('0' > *buf || *buf > '9'){
+       fprintf(2, "Error: %s\n", "There are letters in second number");
+       exit(1);
+     }
+     buf++;
   }
-  int b = atoi(second);
 
   printf("Sum: %d\n", add(a, b));
 
