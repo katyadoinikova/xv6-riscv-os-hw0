@@ -1,6 +1,8 @@
-#include "kernel/types.h"
-#include "kernel/stat.h"
-#include "user/user.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 #define MAX_LEN 20
 
@@ -19,33 +21,39 @@ int smart_write(int fd, char* str, int len){
 int main(int argc, char *argv[]) {
     int pipefd[2];
     if (pipe(pipefd) == -1) {
-        fprintf(2, "Error: pipe isn't created");
+        fprintf(stderr, "Error: pipe isn't created");
         exit(2);
     }
 
     int pid = fork();
     switch(pid){
       case -1:
-         fprintf(2, "Error: fork isn't created");
+         fprintf(stderr, "Error: fork isn't created");
          exit(2);
       case 0:
          close(pipefd[1]);
-         close(0);
-         dup(pipefd[0]);
+         char buf1[MAX_LEN];
+         int bytes_read, bytes_written;
+         while ((bytes_read = read(pipefd[0], buf1, MAX_LEN - 1)) > 0) {
+             buf1[bytes_read] = '\0';
+             /*while (bytes_written < bytes_read) {
+                  int res = write(1, buf1 + bytes_written, bytes_read - bytes_written);
+                  if (res < 0) { exit(2);}
+                  bytes_written += res;
+             }*/
+             printf("%s", buf1);
+         }
          close(pipefd[0]);
-         char *arg[] = {"/wc", 0};
-         exec("/wc", arg);
-         fprintf(2, "Error: exec failed");
-         exit(2);
+         exit(0);
       default:
          close(pipefd[0]);
 
          char buf[MAX_LEN];
          int pos = 0;
-         for (int i = 1; i < argc;){
+         for (int i = 0; i < argc;){
              int l = strlen(argv[i]);
              if (pos + l + 1 <= MAX_LEN){
-                  memmove(buf, argv[i], l);
+                  memmove(buf + pos, argv[i], l);
                   pos += l;
                   buf[pos] = '\n';
                   pos++;
@@ -54,7 +62,7 @@ int main(int argc, char *argv[]) {
              else if (pos == 0){
                   int ret = smart_write (pipefd[1], argv[i], l);
                   if (ret < 0){
-                    fprintf(2, "Error: write error");
+                    fprintf(stderr, "Error: write error");
                     exit(2);
                   }
                   buf[pos] = '\n';
@@ -64,7 +72,7 @@ int main(int argc, char *argv[]) {
              else{
                  int ret = smart_write(pipefd[1], buf, pos);
                  if (ret < 0){
-                    fprintf(2, "Error: write error");
+                    fprintf(stderr, "Error: write error");
                     exit(2);
                  }
                  memset(buf, 0, pos);
@@ -74,12 +82,12 @@ int main(int argc, char *argv[]) {
          if (pos != 0){
              int ret = smart_write(pipefd[1], buf, pos);
              if (ret < 0){
-                 fprintf(2, "Error: write error");
+                 fprintf(stderr, "Error: write error");
                  exit(2);
              }
          }
          if (close(pipefd[1]) == -1){
-            fprintf(2, "Error: pipefd[1] isn't closed - writted data isb't saved");
+            fprintf(stderr, "Error: pipefd[1] isn't closed - writted data isb't saved");
             exit(2);
          }
          wait(0);

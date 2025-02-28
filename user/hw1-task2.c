@@ -42,10 +42,10 @@ int main(int argc, char *argv[]) {
 
          char buf[MAX_LEN];
          int pos = 0;
-         for (int i = 1; i < argc;){
+         for (int i = 0; i < argc;){
              int l = strlen(argv[i]);
              if (pos + l + 1 <= MAX_LEN){
-                  memmove(buf, argv[i], l);
+                  memmove(buf + pos, argv[i], l);
                   pos += l;
                   buf[pos] = '\n';
                   pos++;
