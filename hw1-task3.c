@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
       case 0:
          close(pipefd[1]);
          char buf1[MAX_LEN];
-         int bytes_read, bytes_written;
+         int bytes_read;
          while ((bytes_read = read(pipefd[0], buf1, MAX_LEN - 1)) > 0) {
              buf1[bytes_read] = '\0';
              printf("%s", buf1);
