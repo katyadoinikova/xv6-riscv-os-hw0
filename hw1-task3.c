@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#define MAX_LEN 20
+#define MAX_LEN 16384
 
 int smart_write(int fd, char* str, int len){
      char *ptr = str;
@@ -36,18 +36,17 @@ int main(int argc, char *argv[]) {
          int bytes_read, bytes_written;
          while ((bytes_read = read(pipefd[0], buf1, MAX_LEN - 1)) > 0) {
              buf1[bytes_read] = '\0';
-             /*while (bytes_written < bytes_read) {
-                  int res = write(1, buf1 + bytes_written, bytes_read - bytes_written);
-                  if (res < 0) { exit(2);}
-                  bytes_written += res;
-             }*/
              printf("%s", buf1);
+         }
+         if (bytes_read < 0) {
+             fprintf(stderr, "Error: read error");
+             close(pipefd[0]);
+             exit(2);
          }
          close(pipefd[0]);
          exit(0);
       default:
          close(pipefd[0]);
-
          char buf[MAX_LEN];
          int pos = 0;
          for (int i = 0; i < argc;){
@@ -63,6 +62,7 @@ int main(int argc, char *argv[]) {
                   int ret = smart_write (pipefd[1], argv[i], l);
                   if (ret < 0){
                     fprintf(stderr, "Error: write error");
+                    close(pipefd[1]);
                     exit(2);
                   }
                   buf[pos] = '\n';
@@ -73,6 +73,7 @@ int main(int argc, char *argv[]) {
                  int ret = smart_write(pipefd[1], buf, pos);
                  if (ret < 0){
                     fprintf(stderr, "Error: write error");
+                    close(pipefd[1]);
                     exit(2);
                  }
                  memset(buf, 0, pos);
@@ -83,6 +84,7 @@ int main(int argc, char *argv[]) {
              int ret = smart_write(pipefd[1], buf, pos);
              if (ret < 0){
                  fprintf(stderr, "Error: write error");
+                 close(pipefd[1]);
                  exit(2);
              }
          }

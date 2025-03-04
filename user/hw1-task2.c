@@ -27,6 +27,8 @@ int main(int argc, char *argv[]) {
     switch(pid){
       case -1:
          fprintf(2, "Error: fork isn't created");
+         close(pipefd[0]);
+         close(pipefd[1]);
          exit(2);
       case 0:
          close(pipefd[1]);
@@ -39,7 +41,6 @@ int main(int argc, char *argv[]) {
          exit(2);
       default:
          close(pipefd[0]);
-
          char buf[MAX_LEN];
          int pos = 0;
          for (int i = 0; i < argc;){
@@ -55,16 +56,18 @@ int main(int argc, char *argv[]) {
                   int ret = smart_write (pipefd[1], argv[i], l);
                   if (ret < 0){
                     fprintf(2, "Error: write error");
+                    close(pipefd[1]);
                     exit(2);
                   }
                   buf[pos] = '\n';
                   pos++;
-		  i++;
+                  i++;
              }
              else{
                  int ret = smart_write(pipefd[1], buf, pos);
                  if (ret < 0){
                     fprintf(2, "Error: write error");
+                    close(pipefd[1]);
                     exit(2);
                  }
                  memset(buf, 0, pos);
@@ -75,6 +78,7 @@ int main(int argc, char *argv[]) {
              int ret = smart_write(pipefd[1], buf, pos);
              if (ret < 0){
                  fprintf(2, "Error: write error");
+                 close(pipefd[1]);
                  exit(2);
              }
          }
