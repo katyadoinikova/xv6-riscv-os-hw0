@@ -32,7 +32,7 @@ main(int argc, char *argv[])
   printf("|%s|\n", buffer);
   
   char* buf = buffer;
-  int a = atoi(buf);
+  char* first = buf;
   if (*buf == ' '){
     fprintf(2, "Error: %s\n", "First number is empty");
     exit(1);
@@ -51,7 +51,9 @@ main(int argc, char *argv[])
      exit(1);
   }
   *buf = '\0';
+   
   buf++;
+  char* second = buf;
 
   if (*buf == ' ') {
      fprintf(2, "Error: %s\n", "More than 1 space");
@@ -61,7 +63,6 @@ main(int argc, char *argv[])
     fprintf(2, "Error: %s\n", "Second number is empty");
     exit(1);
   }
-  int b = atoi(buf);
   while (*buf != '\0'){
      if ('0' > *buf || *buf > '9'){
        fprintf(2, "Error: %s\n", "There are letters in second number");
@@ -69,6 +70,9 @@ main(int argc, char *argv[])
      }
      buf++;
   }
+  
+  int a = atoi(first);
+  int b = atoi(second);
 
   printf("Sum: %d\n", add(a, b));
 
