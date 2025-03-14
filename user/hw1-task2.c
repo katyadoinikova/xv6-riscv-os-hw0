@@ -31,10 +31,22 @@ int main(int argc, char *argv[]) {
          close(pipefd[1]);
          exit(2);
       case 0:
-         close(pipefd[1]);
-         close(0);
-         dup(pipefd[0]);
-         close(pipefd[0]);
+         if (close(pipefd[1]) == -1){
+            fprintf(2, "Error: pipefd[1] isn't closed in child");
+            exit(2);
+         }
+         if (close(0) == -1){
+            fprintf(2, "Error: 0 isn't closed");
+            exit(2);
+         }
+         if (dup(pipefd[0]) == -1){
+            fprintf(2, "Error: pipefd[0] duplicate isn't created");
+            exit(2);
+         }
+         if (close(pipefd[0]) == -1){
+            fprintf(2, "Error: pipefd[0] isn't closed");
+            exit(2);
+         }
          char *arg[] = {"/wc", 0};
          exec("/wc", arg);
          fprintf(2, "Error: exec failed");
@@ -46,7 +58,7 @@ int main(int argc, char *argv[]) {
          for (int i = 0; i < argc;){
              int l = strlen(argv[i]);
              if (pos + l + 1 <= MAX_LEN){
-                  memmove(buf + pos, argv[i], l);
+                  memcpy(buf + pos, argv[i], l);
                   pos += l;
                   buf[pos] = '\n';
                   pos++;
@@ -70,7 +82,6 @@ int main(int argc, char *argv[]) {
                     close(pipefd[1]);
                     exit(2);
                  }
-                 memset(buf, 0, pos);
                  pos = 0;
              }
          }
@@ -86,7 +97,10 @@ int main(int argc, char *argv[]) {
             fprintf(2, "Error: pipefd[1] isn't closed - writted data isb't saved");
             exit(2);
          }
-         wait(0);
+         if (wait(0) < 0){
+	    fprintf(2, "Error: no child");
+            exit(2);
+         }
          exit(0);
     }
 }
