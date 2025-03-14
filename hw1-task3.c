@@ -6,16 +6,17 @@
 
 #define MAX_LEN 65536
 
-int smart_write(int fd, char* str, int len){
-     char *ptr = str;
-     while (len > 0) {
-       ssize_t ret = write (fd, str, len);
-       if (ret < 0) return -1;
-       len -= ret;
-       ptr += ret;
-     }
-     return 0;
+int smart_write(int fd, const void* buf, int len) {
+    const char *ptr = (const char*) buf;
+    while (len > 0) {
+        ssize_t ret = write(fd, ptr, len);
+        if (ret < 0) return -1;
+        len -= ret;
+        ptr += ret;
+    }
+    return 0;
 }
+
 
 
 int main(int argc, char *argv[]) {
