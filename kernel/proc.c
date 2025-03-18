@@ -702,7 +702,6 @@ int ps_listinfo(struct procinfo *plist, int lim) {
    struct proc *p;
    struct procinfo pinfo;
    int count_proc = 0;
-   acquire(&wait_lock);
 
    for (p = proc; p < &proc[NPROC]; p++) {
         acquire(&p->lock);
@@ -712,35 +711,32 @@ int ps_listinfo(struct procinfo *plist, int lim) {
             if (plist != 0) {
                 if (count_proc > lim) {
                     release(&p->lock);
-                    release(&wait_lock);
                     return -2;
                 }
                 pinfo.pid = p->pid;
-                strncpy(pinfo.name, p->name, sizeof(pinfo.name) - 1);
-                pinfo.name[sizeof(pinfo.name) - 1] = '\0';
+                safestrcpy(pinfo.name, p->name, sizeof(pinfo.name));
                 switch(p->state){
                   case(SLEEPING): pinfo.state = PROC_SLEEPING; break;
                   case(RUNNING): pinfo.state = PROC_RUNNING; break;
                   case(RUNNABLE): pinfo.state = PROC_RUNNABLE; break;
                   case(ZOMBIE): pinfo.state = PROC_ZOMBIE; break;
-                  default: release(&p->lock); release(&wait_lock); return -4;
+                  default: release(&p->lock); return -4;
                 }
+                acquire(&wait_lock);
                 pinfo.ppid = p->parent ? p->parent->pid : 0;
-                if (p->parent) {
-                    strncpy(pinfo.pname, p->parent->name, sizeof(pinfo.pname) - 1);
-                    pinfo.pname[sizeof(pinfo.pname) - 1] = '\0';
-                } else {
+                if (p->parent)
+                    safestrcpy(pinfo.pname, p->parent->name, sizeof(pinfo.pname));
+                else
                     pinfo.pname[0] = '\0';
-                }
+                release(&wait_lock);
+
                 if (copyout(myproc()->pagetable, (uint64)(plist + count_proc - 1), (char*)&pinfo, sizeof(pinfo)) < 0) {
                   release(&p->lock);
-                  release(&wait_lock);
                   return -3;
                 }
             }
         }
         release(&p->lock);
     }
-  release(&wait_lock);
   return count_proc;
 }
