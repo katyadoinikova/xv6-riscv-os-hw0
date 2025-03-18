@@ -142,6 +142,8 @@ UPROGS=\
         $U/_sum\
         $U/_asm_sum\
         $U/_sys_sum\
+        $U/_ps\
+        $U/_ps_test\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
