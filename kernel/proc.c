@@ -723,11 +723,16 @@ int ps_listinfo(struct procinfo *plist, int lim) {
                   default: release(&p->lock); return -4;
                 }
                 acquire(&wait_lock);
-                pinfo.ppid = p->parent ? p->parent->pid : 0;
-                if (p->parent)
-                    safestrcpy(pinfo.pname, p->parent->name, sizeof(pinfo.pname));
-                else
-                    pinfo.pname[0] = '\0';
+                if (p->parent) {
+                     acquire(&p->parent->lock);
+                     pinfo.ppid = p->parent->pid;
+                     safestrcpy(pinfo.pname, p->parent->name, sizeof(pinfo.pname));
+                     release(&p->parent->lock);
+                } else {
+                   pinfo.ppid = -1;
+                   pinfo.pname[0] = '\0';
+                }
+
                 release(&wait_lock);
 
                 if (copyout(myproc()->pagetable, (uint64)(plist + count_proc - 1), (char*)&pinfo, sizeof(pinfo)) < 0) {
