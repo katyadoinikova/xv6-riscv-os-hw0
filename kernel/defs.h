@@ -9,6 +9,10 @@ struct sleeplock;
 struct stat;
 struct superblock;
 
+//mutex.c
+int mutexalloc(struct file** f);
+void mutexclose(struct file* f);
+
 // bio.c
 void            binit(void);
 struct buf*     bread(uint, uint);
@@ -140,6 +144,7 @@ void            argaddr(int, uint64 *);
 int             fetchstr(uint64, char*, int);
 int             fetchaddr(uint64, uint64*);
 void            syscall();
+int             fdalloc(struct file*);
 
 // trap.c
 extern uint     ticks;
