@@ -34,7 +34,7 @@ uint64 sys_mutex_lock(void)
          return -1;
      struct file *f;
      f = myproc()->ofile[fd];
-     if (f == 0 || f->type != FD_MUTEX)
+     if (f == 0 || f->type != FD_MUTEX || f->mutex == 0)
         return -1;
      acquiresleep(f->mutex);
      return 0;
@@ -50,7 +50,7 @@ uint64 sys_mutex_unlock(void)
      f = myproc()->ofile[fd];
      if (f == 0 || f->type != FD_MUTEX)
         return -1;
-     if (f->mutex->pid != myproc()->pid || f->ref < 1 || !holdingsleep(f->mutex))
+     if (f->mutex->pid != myproc()->pid || !holdingsleep(f->mutex))
         return -1;
      releasesleep(f->mutex);
      return 0;

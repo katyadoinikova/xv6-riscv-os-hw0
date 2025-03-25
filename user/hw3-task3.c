@@ -39,6 +39,17 @@ int main(int argc, void* argv){
        printf("Test 2 a) - failed \n");
    else
        printf("Test 2 a) - passed \n");
+
+
+   m = mutex();
+   if (m < 0){
+     fprintf(2, "error: mutex isn't created");
+     exit(1);
+   }
+   if (mutex_lock(m) < 0) {
+      fprintf(2, "error: mutex_lock failed");
+      exit(1);
+   }
    int pid = fork();
    if (pid < 0){
       fprintf(2, "error: fork failed");
@@ -46,22 +57,23 @@ int main(int argc, void* argv){
    }
    if (pid == 0){
       if (close(m) < 0)
-        printf("Test 2 b) - failed \n");
-   else
-       printf("Test 2 b) - passed \n");
+        printf("Test 2 b) - failed in child \n");
+      else
+        printf("Test 2 b) - passed in child \n");
+      exit(0);
    }
    else {
       sleep(15);
-        if (mutex_unlock(m) < 0) {
-            fprintf(2, "error: mutex_unlocked failed");
-            exit(1);
-        }
-        if (close(m) < 0) {
-            printf("mutex close failed in parent");
-        }
+      if (mutex_unlock(m) < 0) {
+          fprintf(2, "error: mutex_unlocked failed");
+          exit(1);
+      }
+      if (close(m) < 0)
+          printf("Test 2b) - failed in parent \n");
+      else
+           printf ("Test 2b) - passed in parent \n");
         wait(0);
    }
-   close(m);
 
    printf("\n");
 
@@ -122,7 +134,15 @@ int main(int argc, void* argv){
          exit(0);
    }
    else {
-        sleep(30);
+        sleep(15);
+        if (mutex_unlock(m) < 0) {
+          fprintf(2, "error: mutex_unlocked failed");
+          exit(1);
+        }
+        if (close(m) < 0) {
+          fprintf(2, "error mutex isn't closed");
+          exit(1);
+        }
         wait(0);
    }
    exit(0);

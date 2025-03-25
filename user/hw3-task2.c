@@ -63,7 +63,10 @@ int main(int argc, char *argv[]) {
          wait(0);
 
 
-    close(m);
+    if (close(m) < 0) {
+        fprintf(2, "Error: failed to close mutex");
+        exit(1);
+    }
     exit(0);
 }
 
