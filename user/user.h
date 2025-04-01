@@ -25,6 +25,8 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int add(int a, int b);
+int print_pagetable(uint64* buf, int len, int flags);
+int remove_flags(uint64* buf, int len, int flags);
 
 // ulib.c
 int stat(const char*, struct stat*);

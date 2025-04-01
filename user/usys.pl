@@ -37,3 +37,5 @@ entry("sbrk");
 entry("sleep");
 entry("uptime");
 entry("add");
+entry("print_pagetable");
+entry("remove_flags");
