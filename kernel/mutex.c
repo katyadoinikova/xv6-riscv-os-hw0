@@ -16,23 +16,25 @@ mutexalloc(struct file **f)
 
   mutex = 0;
   *f = 0;
-  
-  if((*f = filealloc()) == 0) {
+  *f = filealloc();
+  if(!(*f)) {
     printf("Proc %d - failed in filealloc \n", myproc()->pid);
     return -1;
   }
-  printf("Proc %d - succeded in filealloc\n", myproc()->pid);
+  printf("Proc %d - succeded in filealloc, file = %p\n", myproc()->pid, *f);
   if((mutex = (struct sleeplock*)kalloc()) == 0) {
     fileclose(*f);
-    printf("Proc %d - failed in kalloc \n", myproc()->pid);
+    printf("Proc %d - failed in kalloc, file = %p \n", myproc()->pid, *f);
     return -1;
   }
-  printf("Proc %d - succeded in kalloc \n", myproc()->pid);
+  printf("Proc %d - succeeded in kalloc, mutex at %p, file = %p\n", myproc()->pid, mutex, *f);
   initsleeplock(mutex, "m");
 
   (*f)->type = FD_MUTEX;
   (*f)->mutex = mutex;
-  printf("Proc %d - mutexalloc succeded \n", myproc()->pid);
+  (*f)->readable = 0;
+  (*f)->writable = 0;
+  printf("Proc %d - mutexalloc succeeded for mutex = %p, file = %p \n", myproc()->pid, mutex, *f);
   return 0;
 }
 
@@ -40,13 +42,14 @@ mutexalloc(struct file **f)
 void
 mutexclose(struct file *f)
 {
-  printf("Proc %d - called mutexclose \n", myproc()->pid);
+  printf("Proc %d - called mutexclose, file = %p \n", myproc()->pid, f);
   if (f == 0 || f->type != FD_MUTEX){
-    printf("Proc %d - tried to close not mutex or null \n", myproc()->pid);
+    printf("Proc %d - tried to close not mutex or null, file = %p \n", myproc()->pid, f);
     return;
   }
+  printf("Proc %d - unlocked mutex 0x%p, file = %p\n", myproc()->pid, f->mutex, f);
   kfree((char *)f->mutex);
   f->mutex = 0;
-  printf("Proc %d - mutexclose succeded \n", myproc()->pid);
+  printf("Proc %d - mutexclose succeded, file = %p \n", myproc()->pid, f);
 
 }
