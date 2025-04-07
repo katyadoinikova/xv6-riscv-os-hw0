@@ -7,7 +7,6 @@
 #include "proc.h"
 #include "elf.h"
 #include "fs.h"
-#include "hw4-help-func.h"
 
 uint64
 sys_exit(void)
@@ -95,45 +94,3 @@ sys_uptime(void)
   return xticks;
 }
 
-uint64
-sys_print_pagetable(void)
-{
-  uint64 buf; int len, flags;
-  argaddr(0, &buf);
-  argint(1, &len);
-  argint(2, &flags);
-
-  if (flags < 0 || flags > 3) return -1;
-
-  struct proc *p = myproc();
-  pagetable_t pages = p->pagetable;
-  printf("PAGETABLE 0x%p\n", pages);
-  //printf("buffer: %ld\n", buf);
-  /*if (buf != 0 && len > 0) {
-        char temp;
-        if (copyin(p->pagetable, (char *)&temp, buf, 1) < 0 ||
-            copyin(p->pagetable, (char *)&temp, buf + len - 1, 1) < 0) {
-            printf("Buffer isn't in address space");
-            return -1;
-        }
-    }*/
-  visit_pages_and_print(2, pages, buf, len, flags);
-
-
-  return 0;
-}
-
-
-uint64
-sys_remove_flags(void)
-{
-  uint64 buf; int len, flags;
-  argaddr(0, &buf);
-  argint(1, &len);
-  argint(2, &flags);
-  if (flags < 0 || flags > 3) return -1;
-  struct proc *p = myproc();
-  pagetable_t pages = p->pagetable;
-  visit_pages_and_remove_flags(2, pages, buf, len, flags);
-  return 0;
-}

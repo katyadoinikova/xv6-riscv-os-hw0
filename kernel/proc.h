@@ -1,3 +1,7 @@
+#define A_FLAG 0b01
+#define D_FLAG 0b10
+#define ALL_FLAGS (A_FLAG | D_FLAG)
+
 // Saved registers for kernel context switches.
 struct context {
   uint64 ra;

@@ -2,6 +2,10 @@
 #include "user/user.h"
 #include "kernel/stat.h"
 
+#define A_FLAG 0b01
+#define D_FLAG 0b10
+#define ALL_FLAGS (A_FLAG | D_FLAG)
+
 int global_var = 100;
 int
 main(int argc, char *argv[])
@@ -37,12 +41,12 @@ main(int argc, char *argv[])
    printf("\n\n\n");
 
    printf("Delete A flags from heap \n");
-   if (remove_flags((uint64*)(arr2) + 1, 4096, 1) < 0){ printf("error in removing flags from pagetable"); exit(1);}
+   if (remove_flags((uint64*)(arr2) + 1, 4096, A_FLAG) < 0){ printf("error in removing flags from pagetable"); exit(1);}
    if (print_pagetable(0U, 0, 0) < 0){ printf("error in printing pagetable"); exit(1);}
    printf("\n\n\n");
 
    printf("Delete AD flags \n");
-   if (remove_flags(0, 0, 3) < 0){ printf("error in removing flags from pagetable"); exit(1);}
+   if (remove_flags(0, 0, ALL_FLAGS) < 0){ printf("error in removing flags from pagetable"); exit(1);}
    if (print_pagetable(0U, 0, 0) < 0){ printf("error in printing pagetable"); exit(1);}
    printf("\n\n\n");
 
@@ -51,8 +55,8 @@ main(int argc, char *argv[])
    int x2 = global_var;
    int x3 = stack_var;
    int x4 = arr1[0];
-   printf("Pages after reading vars (ouput with A flags), read vars: %d %d %d %d", x1, x2, x3, x4);
-   if (print_pagetable(0U, 0, 1) < 0){ printf("error in printing pagetable"); exit(1);}
+   printf("Pages after reading vars (ouput with A flags), read vars: %d %d %d %d \n", x1, x2, x3, x4);
+   if (print_pagetable(0U, 0, A_FLAG) < 0){ printf("error in printing pagetable"); exit(1);}
    printf("\n\n\n");
 
    global_var++;
@@ -60,8 +64,8 @@ main(int argc, char *argv[])
    stack_var ++;
    arr1[0]++;
    arr2[5000]++;
-   printf("Pages after changing vars (ouput with D flags)");
-   if (print_pagetable(0U, 0, 2) < 0){ printf("error in printing pagetable"); exit(1);}
+   printf("Pages after changing vars (ouput with D flags)\n");
+   if (print_pagetable(0U, 0, D_FLAG) < 0){ printf("error in printing pagetable"); exit(1);}
    printf("\n\n\n");
 
    sbrk(-2*4096);

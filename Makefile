@@ -30,7 +30,7 @@ OBJS = \
   $K/plic.o \
   $K/virtio_disk.o \
   $K/sysadd.o \
-  $K/hw4-help-func.o \
+  $K/syspages.o \
 # riscv64-unknown-elf- or riscv64-linux-gnu-
 # perhaps in /opt/riscv/bin
 #TOOLPREFIX = 
