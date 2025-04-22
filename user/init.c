@@ -8,6 +8,7 @@
 #include "kernel/file.h"
 #include "user/user.h"
 #include "kernel/fcntl.h"
+#include "kernel/psevdev.h"
 
 char *argv[] = { "sh", 0 };
 
@@ -22,6 +23,13 @@ main(void)
   }
   dup(0);  // stdout
   dup(0);  // stderr
+
+
+  mkdir("/dev");
+  mknod("/dev/null", PSEV_DEV, NULLDEV);
+  mknod("/dev/zero", PSEV_DEV, ZERODEV);
+  mknod("/dev/urandom", PSEV_DEV, URANDOM);
+  mknod("/dev/nullstat", PSEV_DEV, NULLSTAT);
 
   for(;;){
     printf("init: starting sh\n");
