@@ -25,6 +25,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int add(int a, int b);
+uint64 getrtc(void);
 
 // ulib.c
 int stat(const char*, struct stat*);
