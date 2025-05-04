@@ -15,13 +15,14 @@
 static uint64 count = 0;
 static uint64 urandom_seed = 1;
 struct spinlock lock;
+struct spinlock lock_random;
 
 static uint8 
 random_byte(void) 
 {
-  acquire(&lock);
+  acquire(&lock_random);
   urandom_seed = urandom_seed * 1664525 + 1013904223;
-  release(&lock);
+  release(&lock_random);
   return (urandom_seed >> 56);
 }
 
@@ -36,10 +37,15 @@ psevdev_read(short minor, int user_dst, uint64 dst, int n)
       return 0;
     
     case ZERODEV: {
-      char zero = 0;
-      for(int i = 0; i < n; i++) {
-        if(either_copyout(user_dst, dst + i, &zero, 1) < 0)
-          return -1;
+
+      char zeros[256] = {0};
+      int readed = 0;
+             
+      while (readed < n) {
+        int copy_one_step = n - readed < sizeof(zeros) ? n - readed : sizeof(zeros);
+        if (either_copyout(user_dst, dst + readed, zeros, copy_one_step) < 0)
+            return -1;
+        readed += copy_one_step;
       }
       return n;
     }
@@ -86,9 +92,9 @@ psevdev_write(short minor, int user_src, uint64 src, int n)
         return -1;
       if (either_copyin(&seed, user_src, src, sizeof(uint64)) < 0)
         return -1;
-      acquire(&lock);
+      acquire(&lock_random);
       urandom_seed = seed;
-      release(&lock);
+      release(&lock_random);
       return sizeof(uint64);
     
     case NULLSTAT:
@@ -106,6 +112,7 @@ psevdev_write(short minor, int user_src, uint64 src, int n)
 
 void psevdev_init(void) {
     initlock(&lock, "ldev_lock");
+    initlock(&lock_random, "rand_lock");
     devsw[PSEV_DEV].read = psevdev_read;
     devsw[PSEV_DEV].write = psevdev_write;
 }
