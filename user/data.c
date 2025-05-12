@@ -48,8 +48,8 @@ int main(int argc, char *argv[]){
     int year = EPOCH_YEAR;
     while (1){
         if (days >= DAYS_PER_YEAR + is_leap_year(year)){
-            year ++;
             days -= DAYS_PER_YEAR + is_leap_year(year);
+            year ++;
         }
         else
             break;
